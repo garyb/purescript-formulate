@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Functor1 (class Functor1)
 import Data.List.NonEmpty (NonEmptyList)
-import Formulate (Entry(..), mkEntry)
+import Formulate (Def(..))
 
 data Element f
   = Label String
@@ -27,14 +27,14 @@ instance functor1Element ∷ Functor1 Element where
 
 --------------------------------------------------------------------------------
 
-label ∷ ∀ a. String → Entry Element a
-label = Entry <<< Label
+label ∷ ∀ a. String → Def Element a
+label = Def <<< Label
 
-textInput ∷ Entry Element String
-textInput = mkEntry Text
+textInput ∷ Def Element String
+textInput = Def (Text identity)
 
-integerInput ∷ Entry Element Int
-integerInput = mkEntry Integer
+integerInput ∷ Def Element Int
+integerInput = Def (Integer identity)
 
-select ∷ ∀ a. (a → String) → NonEmptyList a → Entry Element a
-select print options = Entry (Select \f → f { value: identity, print, options })
+select ∷ ∀ a. (a → String) → NonEmptyList a → Def Element a
+select print options = Def (Select \f → f { value: identity, print, options })

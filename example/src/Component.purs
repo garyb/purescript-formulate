@@ -11,7 +11,7 @@ import Data.Int as Int
 import Data.List.NonEmpty as NEL
 import Data.Maybe (Maybe(..))
 import Example.Element (Element(..))
-import Formulate (Labelled, Value(..), Valued(..), populate)
+import Formulate (Def, Labelled, Val, Value(..), label, populate, value)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -20,7 +20,7 @@ import Halogen.HTML.Properties as HP
 type Form row = Array (FormPart row)
 
 data FormPart row
-  = Group (Array (Labelled row Element))
+  = Group (Array (Labelled row (Def Element)))
   | Chunk HH.PlainHTML
 
 data Action row
@@ -57,19 +57,19 @@ renderPart state = case _ of
   Chunk html →
     HH.fromPlainHTML html
 
-renderElement ∷ ∀ row slots m. Valued row Element → HTML row slots m
-renderElement (Valued id el) = case el of
+renderElement ∷ ∀ row slots m. Labelled row (Val row Element) → HTML row slots m
+renderElement x = case value x of
   Label text →
     HH.label
       [ HP.classes [ H.ClassName "formLabel" ]
-      , HP.for id
+      , HP.for (label x)
       ]
       [ HH.text text ]
   Text (Value r) →
     HH.input
       [ HP.classes [ H.ClassName "formInput" ]
       , HP.type_ HP.InputText
-      , HP.name id
+      , HP.name (label x)
       , HP.value r.value
       , HE.onValueInput (Just <<< Update <<< r.update)
       ]
@@ -77,7 +77,7 @@ renderElement (Valued id el) = case el of
     HH.input
       [ HP.classes [ H.ClassName "formInput" ]
       , HP.type_ HP.InputNumber
-      , HP.name id
+      , HP.name (label x)
       , HP.value (show r.value)
       , HE.onValueInput (map (Update <<< r.update) <<< Int.fromString)
       ]
