@@ -8,5 +8,5 @@ newtype LBox row a = LBox (∀ r. (∀ lbl _1. Cons lbl a _1 row ⇒ IsSymbol lb
 lbox ∷ ∀ lbl a _1 row. Cons lbl a _1 row ⇒ IsSymbol lbl ⇒ SProxy lbl → LBox row a
 lbox lbl = LBox \f → f lbl
 
-reflect ∷ ∀ row a. LBox row a → String
-reflect (LBox f) = f reflectSymbol
+reflectLabel ∷ ∀ row a. LBox row a → String
+reflectLabel (LBox f) = f reflectSymbol
