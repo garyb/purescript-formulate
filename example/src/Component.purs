@@ -1,8 +1,4 @@
-module Example.Component
-  ( Form
-  , FormPart(..)
-  , component
-  ) where
+module Example.Component (component) where
 
 import Prelude
 
@@ -11,17 +7,13 @@ import Data.Int as Int
 import Data.List.NonEmpty as NEL
 import Data.Maybe (Maybe(..))
 import Example.Element (Element(..))
-import Formulate (LabelledDef, LabelledVal, Value(..), populateLabelled, reflectLabel, renderLabelled)
+import Example.HTML as FH
+import Formulate (LabelledVal, Value(..), populateLabelled, reflectLabel, renderLabelled)
 import Halogen as H
 import Halogen.HTML as HH
+import Halogen.HTML.Core as HC
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-
-type Form row = Array (FormPart row)
-
-data FormPart row
-  = Group (Array (LabelledDef row Element))
-  | Chunk HH.PlainHTML
 
 data Action row
   = Initialize
@@ -30,11 +22,11 @@ data Action row
 
 type HTML row slots m = HH.ComponentHTML (Action row) slots m
 
-component ∷ ∀ f row m. Form row → H.Component HH.HTML f (Record row) (Record row) m
-component form =
+component ∷ ∀ f row m. FH.HTML row Void → H.Component HH.HTML f (Record row) (Record row) m
+component def =
   H.mkComponent
     { initialState: identity
-    , render: render form
+    , render: render def
     , eval: H.mkEval $ H.defaultEval
         { handleAction = handleAction
         , initialize = Just Initialize
@@ -42,20 +34,9 @@ component form =
         }
     }
 
-render ∷ ∀ row slots m. Form row → Record row → HTML row slots m
-render parts state =
-  HH.form
-    [ HP.classes [ H.ClassName "form"] ]
-    (renderPart state <$> parts)
-
-renderPart ∷ ∀ row slots m. Record row → FormPart row → HTML row slots m
-renderPart state = case _ of
-  Group elements →
-    HH.div
-      [ HP.classes [ H.ClassName "formGroup" ] ]
-      (renderElement <<< populateLabelled state <$> elements)
-  Chunk html →
-    HH.fromPlainHTML html
+render ∷ ∀ row slots m. FH.HTML row Void → Record row → HTML row slots m
+render def state =
+  HC.renderWidget absurd (renderElement <<< populateLabelled state) def
 
 renderElement ∷ ∀ row slots m. LabelledVal row Element → HTML row slots m
 renderElement = renderLabelled \lbl → case _ of
