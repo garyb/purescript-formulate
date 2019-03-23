@@ -10,23 +10,24 @@ module Formulate
   ) where
 
 import Data.Functor1 (class Functor1, map1)
-import Data.Leibniz (Leibniz)
+import Formulate.Definition (Definition)
+import Formulate.Definition (Definition(..), def) as Exports
 import Formulate.LBox (LBox(..), reflectLabel)
 import Formulate.Labelled (LabelEntry(..), Labelled, labelled) as Exports
 import Formulate.Labelled (Labelled, mapLabelled, unLabelled)
 import Formulate.Value (Value(..)) as Exports
 import Formulate.Value (Value, mkValue)
 
-newtype Def t a = Def (t (Leibniz a))
+newtype Def row err t a = Def (t (Definition row err a))
 
-newtype Val row t a = Val (t (Value row))
+newtype Val row err t a = Val (t (Value row err))
 
-type LabelledDef row t = Labelled row (Def t)
+type LabelledDef row err t = Labelled row (Def row err t)
 
-type LabelledVal row t = Labelled row (Val row t)
+type LabelledVal row err t = Labelled row (Val row err t)
 
-populateLabelled ∷ ∀ t row. Functor1 t ⇒ Record row → LabelledDef row t → LabelledVal row t
-populateLabelled state = mapLabelled \lbl (Def tlz) → Val (map1 (mkValue state lbl) tlz)
+populateLabelled ∷ ∀ t row err. Functor1 t ⇒ Record row → LabelledDef row err t → LabelledVal row err t
+populateLabelled state = mapLabelled \lbl (Def def) → Val (map1 (mkValue state lbl) def)
 
-renderLabelled ∷ ∀ row t r. (∀ a. LBox row a → t (Value row) → r) → LabelledVal row t → r
+renderLabelled ∷ ∀ row err t r. (∀ a. LBox row a → t (Value row err) → r) → LabelledVal row err t → r
 renderLabelled f = unLabelled \lbl (Val a) → f lbl a

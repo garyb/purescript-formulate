@@ -2,10 +2,11 @@ module Example.Component (component) where
 
 import Prelude
 
+import Control.MonadZero (guard)
 import Data.Array as Array
 import Data.Int as Int
 import Data.List.NonEmpty as NEL
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), isJust)
 import Example.Element (Element(..))
 import Example.HTML as FH
 import Formulate (LabelledVal, Value(..), populateLabelled, reflectLabel, renderLabelled)
@@ -18,11 +19,11 @@ import Halogen.HTML.Properties as HP
 data Action row
   = Initialize
   | Receive (Record row)
-  | Update (Record row → Record row)
+  | Update (Record row)
 
 type HTML row slots m = HH.ComponentHTML (Action row) slots m
 
-component ∷ ∀ f row m. FH.HTML row Void → H.Component HH.HTML f (Record row) (Record row) m
+component ∷ ∀ f row m. FH.HTML row String Void → H.Component HH.HTML f (Record row) (Record row) m
 component def =
   H.mkComponent
     { initialState: identity
@@ -34,11 +35,11 @@ component def =
         }
     }
 
-render ∷ ∀ row slots m. FH.HTML row Void → Record row → HTML row slots m
+render ∷ ∀ row slots m. FH.HTML row String Void → Record row → HTML row slots m
 render def state =
   HC.renderWidget absurd (renderElement <<< populateLabelled state) def
 
-renderElement ∷ ∀ row slots m. LabelledVal row Element → HTML row slots m
+renderElement ∷ ∀ row slots m. LabelledVal row String Element → HTML row slots m
 renderElement = renderLabelled \lbl → case _ of
   Label text →
     HH.label
@@ -48,7 +49,10 @@ renderElement = renderLabelled \lbl → case _ of
       [ HH.text text ]
   Text (Value r) →
     HH.input
-      [ HP.classes [ H.ClassName "formInput" ]
+      [ HP.classes $ join
+          [ pure $ H.ClassName "formInput"
+          , guard (isJust r.error) $> H.ClassName "invalid"
+          ]
       , HP.type_ HP.InputText
       , HP.name (reflectLabel lbl)
       , HP.value r.value
@@ -56,7 +60,10 @@ renderElement = renderLabelled \lbl → case _ of
       ]
   Integer (Value r) →
     HH.input
-      [ HP.classes [ H.ClassName "formInput" ]
+      [ HP.classes $ join
+          [ pure $ H.ClassName "formInput"
+          , guard (isJust r.error) $> H.ClassName "invalid"
+          ]
       , HP.type_ HP.InputNumber
       , HP.name (reflectLabel lbl)
       , HP.value (show r.value)
@@ -64,7 +71,10 @@ renderElement = renderLabelled \lbl → case _ of
       ]
   Select f → f \{ value: Value r, options, print } →
     HH.select
-      [ HP.classes [ H.ClassName "formSelect" ]
+      [ HP.classes $ join
+          [ pure $ H.ClassName "formSelect"
+          , guard (isJust r.error) $> H.ClassName "invalid"
+          ]
       , HE.onSelectedIndexChange (map (Update <<< r.update) <<< NEL.index options)
       ]
       $ renderOption print r.value <$> Array.fromFoldable options
@@ -81,6 +91,6 @@ handleAction = case _ of
     H.raise =<< H.get
   Receive st →
     H.put st
-  Update f → do
-    st ← H.modify f
-    H.raise st
+  Update state → do
+    H.put state
+    H.raise state

@@ -2,9 +2,11 @@ module Example.Element where
 
 import Prelude
 
+import Data.Either (Either)
 import Data.Functor1 (class Functor1)
 import Data.List.NonEmpty (NonEmptyList)
-import Formulate (Def(..))
+import Formulate (Def(..), def)
+import Formulate.Validated (Validated, validated)
 
 data Element f
   = Label String
@@ -27,14 +29,17 @@ instance functor1Element ∷ Functor1 Element where
 
 --------------------------------------------------------------------------------
 
-label ∷ ∀ a. String → Def Element a
+label ∷ ∀ row err a. String → Def row err Element a
 label = Def <<< Label
 
-textInput ∷ Def Element String
-textInput = Def (Text identity)
+textInput ∷ ∀ row err. Def row err Element String
+textInput = Def (Text def)
 
-integerInput ∷ Def Element Int
-integerInput = Def (Integer identity)
+textInputV ∷ ∀ row err a. (String → Either err a) → Def row err Element (Validated err String a)
+textInputV f = Def (Text (validated f))
 
-select ∷ ∀ a. (a → String) → NonEmptyList a → Def Element a
-select print options = Def (Select \f → f { value: identity, print, options })
+integerInput ∷ ∀ row err. Def row err Element Int
+integerInput = Def (Integer def)
+
+select ∷ ∀ row err a. (a → String) → NonEmptyList a → Def row err Element a
+select print options = Def (Select \f → f { value: def, print, options })
