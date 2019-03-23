@@ -39,7 +39,7 @@ render ∷ ∀ row slots m. FH.HTML row String Void → Record row → HTML row 
 render def state =
   HC.renderWidget absurd (renderElement <<< populateLabelled state) def
 
-renderElement ∷ ∀ row slots m. LabelledVal row String Element → HTML row slots m
+renderElement ∷ ∀ row slots m. LabelledVal Element row String → HTML row slots m
 renderElement = renderLabelled \lbl → case _ of
   Label text →
     HH.label

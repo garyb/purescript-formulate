@@ -9,13 +9,13 @@ import Halogen.HTML as HH
 import Halogen.HTML.Core as HC
 import Prim.Row as Row
 
-type HTML row err i = HH.HTML (LabelledDef row err Element) i
+type HTML row err i = HH.HTML (LabelledDef Element row err) i
 
 embed
   ∷ ∀ lbl a _1 row err i
   . Row.Cons lbl a _1 row
   ⇒ IsSymbol lbl
   ⇒ SProxy lbl
-  → Def row err Element a
+  → Def Element row err a
   → HTML row err i
 embed lbl = HC.widget <<< labelled lbl

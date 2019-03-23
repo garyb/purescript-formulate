@@ -29,17 +29,17 @@ instance functor1Element ∷ Functor1 Element where
 
 --------------------------------------------------------------------------------
 
-label ∷ ∀ row err a. String → Def row err Element a
+label ∷ ∀ row err a. String → Def Element row err a
 label = Def <<< Label
 
-textInput ∷ ∀ row err. Def row err Element String
+textInput ∷ ∀ row err. Def Element row err String
 textInput = Def (Text def)
 
-textInputV ∷ ∀ row err a. (String → Either err a) → Def row err Element (Validated err String a)
+textInputV ∷ ∀ row err a. (String → Either err a) → Def Element row err (Validated err String a)
 textInputV f = Def (Text (validated f))
 
-integerInput ∷ ∀ row err. Def row err Element Int
+integerInput ∷ ∀ row err. Def Element row err Int
 integerInput = Def (Integer def)
 
-select ∷ ∀ row err a. (a → String) → NonEmptyList a → Def row err Element a
+select ∷ ∀ row err a. (a → String) → NonEmptyList a → Def Element row err a
 select print options = Def (Select \f → f { value: def, print, options })

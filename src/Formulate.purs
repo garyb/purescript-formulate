@@ -18,16 +18,16 @@ import Formulate.Labelled (Labelled, mapLabelled, unLabelled)
 import Formulate.Value (Value(..)) as Exports
 import Formulate.Value (Value, mkValue)
 
-newtype Def row err t a = Def (t (Definition row err a))
+newtype Def t row err a = Def (t (Definition row err a))
 
-newtype Val row err t a = Val (t (Value row err))
+newtype Val t row err a = Val (t (Value row err))
 
-type LabelledDef row err t = Labelled row (Def row err t)
+type LabelledDef t row err = Labelled row (Def t row err)
 
-type LabelledVal row err t = Labelled row (Val row err t)
+type LabelledVal t row err = Labelled row (Val t row err)
 
-populateLabelled ∷ ∀ t row err. Functor1 t ⇒ Record row → LabelledDef row err t → LabelledVal row err t
+populateLabelled ∷ ∀ t row err. Functor1 t ⇒ Record row → LabelledDef t row err → LabelledVal t row err
 populateLabelled state = mapLabelled \lbl (Def def) → Val (map1 (mkValue state lbl) def)
 
-renderLabelled ∷ ∀ row err t r. (∀ a. LBox row a → t (Value row err) → r) → LabelledVal row err t → r
+renderLabelled ∷ ∀ t row err r. (∀ a. LBox row a → t (Value row err) → r) → LabelledVal t row err → r
 renderLabelled f = unLabelled \lbl (Val a) → f lbl a
