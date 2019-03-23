@@ -1,5 +1,6 @@
 module Formulate.Halogen.Component
   ( Slot
+  , Input
   , Action(..)
   , Message(..)
   , component
@@ -17,6 +18,11 @@ import Halogen.HTML.Core as HC
 
 type Slot row action = H.Slot (Const Void) (Message row action)
 
+type Input el row err action =
+  { form ∷ FH.HTML el row err action
+  , state ∷ Record row
+  }
+
 data Action row action
   = Update (Record row)
   | Raise action
@@ -28,23 +34,22 @@ data Message row action
 component
   ∷ ∀ el row err action slots f m
   . Functor1 el
-  ⇒ (LabelledVal el row err → HH.ComponentHTML (Action row action) slots m)
-  → FH.HTML el row err action
-  → H.Component HH.HTML f (Record row) (Message row action) m
-component renderElement def =
+  ⇒ (Record row → LabelledVal el row err → HH.ComponentHTML (Action row action) slots m)
+  → H.Component HH.HTML f (Input el row err action) (Message row action) m
+component renderElement =
   H.mkComponent
     { initialState: identity
-    , render: render renderElement def
+    , render: render renderElement
     , eval
     }
 
 eval
-  ∷ ∀ row action slots f m
-  . H.HalogenQ f (Action row action) (Record row)
-  ~> H.HalogenM (Record row) (Action row action) slots (Message row action) m
+  ∷ ∀ el row err action slots f m
+  . H.HalogenQ f (Action row action) (Input el row err action)
+  ~> H.HalogenM (Input el row err action) (Action row action) slots (Message row action) m
 eval = case _ of
   H.Initialize a → do
-    H.raise <<< Change =<< H.get
+    H.raise <<< Change =<< H.gets _.state
     pure a
   H.Finalize a →
     pure a
@@ -54,7 +59,7 @@ eval = case _ of
   H.Action act a → do
     case act of
       Update state → do
-        H.put state
+        H.modify_ (_ { state = state })
         H.raise (Change state)
       Raise action → do
         H.raise (Bubble action)
@@ -65,9 +70,8 @@ eval = case _ of
 render
   ∷ ∀ el row err action slots m
   . Functor1 el
-  ⇒ (LabelledVal el row err → HH.ComponentHTML (Action row action) slots m)
-  → FH.HTML el row err action
-  → Record row
+  ⇒ (Record row → LabelledVal el row err → HH.ComponentHTML (Action row action) slots m)
+  → Input el row err action
   → HH.ComponentHTML (Action row action) slots m
-render renderElement def state =
-  HC.renderWidget Raise (renderElement <<< populateLabelled state) def
+render renderElement { form, state } =
+  HC.renderWidget Raise (renderElement state <<< populateLabelled state) form

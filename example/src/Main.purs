@@ -89,7 +89,7 @@ ui =
   where
     render state =
       HH.div_
-        [ HH.slot (SProxy ∷ _ "form") unit (component form) state Just
+        [ HH.slot (SProxy ∷ _ "form") unit component { form, state } Just
         , HH.p_ [ HH.text ("Name: " <> state.name) ]
         , HH.p_ [ HH.text ("Age: " <> show state.age) ]
         , HH.p_ [ HH.text ("Language preference: " <> printLanguage state.language) ]

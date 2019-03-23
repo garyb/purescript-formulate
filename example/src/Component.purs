@@ -10,7 +10,6 @@ import Data.Maybe (Maybe(..), isJust)
 import Example.Element (Element(..))
 import Formulate (LabelledVal, Value(..), reflectLabel, renderLabelled)
 import Formulate.Halogen.Component as FC
-import Formulate.Halogen.HTML as FH
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -18,9 +17,8 @@ import Halogen.HTML.Properties as HP
 
 component
   ∷ ∀ f row action m
-  . FH.HTML Element row String action
-  → H.Component HH.HTML f (Record row) (FC.Message row action) m
-component = FC.component renderElement
+  . H.Component HH.HTML f (FC.Input Element row String action) (FC.Message row action) m
+component = FC.component (\_ → renderElement)
 
 type HTML row action slots m = HH.ComponentHTML (FC.Action row action) slots m
 
