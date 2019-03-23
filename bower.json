@@ -8,11 +8,11 @@
   ],
   "dependencies": {
     "purescript-functor1": "^1.0.0",
+    "purescript-halogen": "^5.0.0",
     "purescript-leibniz": "^5.0.0",
     "purescript-record": "^2.0.0"
   },
   "devDependencies": {
-    "purescript-halogen": "^5.0.0-rc.4",
     "purescript-integers": "^4.0.0"
   }
 }

@@ -10,8 +10,8 @@ import Data.String.NonEmpty as NES
 import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import Example.Component (component)
-import Example.Element (integerInput, label, select, textInput, textInputV)
-import Example.HTML as FH
+import Example.Element (Element, integerInput, label, select, textInput, textInputV)
+import Formulate.Halogen.HTML as FH
 import Formulate.Validated (Validated(..))
 import Halogen as H
 import Halogen.Aff as HA
@@ -45,7 +45,7 @@ _age = SProxy ∷ SProxy "age"
 _language = SProxy ∷ SProxy "language"
 _validated = SProxy ∷ SProxy "validated"
 
-form ∷ FH.HTML FormElements String Void
+form ∷ FH.HTML Element FormElements String Void
 form =
   HH.form
     [ HP.classes [ H.ClassName "form"] ]

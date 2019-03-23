@@ -8,8 +8,8 @@ import Data.Int as Int
 import Data.List.NonEmpty as NEL
 import Data.Maybe (Maybe(..), isJust)
 import Example.Element (Element(..))
-import Example.HTML as FH
 import Formulate (LabelledVal, Value(..), populateLabelled, reflectLabel, renderLabelled)
+import Formulate.Halogen.HTML as FH
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Core as HC
@@ -23,7 +23,7 @@ data Action row
 
 type HTML row slots m = HH.ComponentHTML (Action row) slots m
 
-component ∷ ∀ f row m. FH.HTML row String Void → H.Component HH.HTML f (Record row) (Record row) m
+component ∷ ∀ f row m. FH.HTML Element row String Void → H.Component HH.HTML f (Record row) (Record row) m
 component def =
   H.mkComponent
     { initialState: identity
@@ -35,7 +35,7 @@ component def =
         }
     }
 
-render ∷ ∀ row slots m. FH.HTML row String Void → Record row → HTML row slots m
+render ∷ ∀ row slots m. FH.HTML Element row String Void → Record row → HTML row slots m
 render def state =
   HC.renderWidget absurd (renderElement <<< populateLabelled state) def
 
