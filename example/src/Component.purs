@@ -16,8 +16,8 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 
 component
-  ∷ ∀ f row action m
-  . H.Component HH.HTML f (FC.Input Element row String action) (FC.Message row action) m
+  ∷ ∀ f row action slots m
+  . H.Component HH.HTML f (FC.Input Element row String action slots m) (FC.Message row action) m
 component = FC.component (\_ → renderElement)
 
 type HTML row action slots m = HH.ComponentHTML (FC.Action row action) slots m

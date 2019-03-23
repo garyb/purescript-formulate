@@ -46,7 +46,7 @@ _age = SProxy ∷ SProxy "age"
 _language = SProxy ∷ SProxy "language"
 _validated = SProxy ∷ SProxy "validated"
 
-form ∷ FH.HTML Element FormElements String Void
+form ∷ ∀ m. FH.HTML Element FormElements String Void () m
 form =
   HH.form
     [ HP.classes [ H.ClassName "form"] ]
