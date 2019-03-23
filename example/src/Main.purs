@@ -11,6 +11,7 @@ import Data.Symbol (SProxy(..))
 import Effect (Effect)
 import Example.Component (component)
 import Example.Element (Element, integerInput, label, select, textInput, textInputV)
+import Formulate.Halogen.Component as FC
 import Formulate.Halogen.HTML as FH
 import Formulate.Validated (Validated(..))
 import Halogen as H
@@ -83,7 +84,7 @@ ui =
         , validated: Initial ""
         }
     , render
-    , eval: H.mkEval (H.defaultEval { handleAction = H.put })
+    , eval: H.mkEval (H.defaultEval { handleAction = handleMessage })
     }
   where
     render state =
@@ -93,6 +94,9 @@ ui =
         , HH.p_ [ HH.text ("Age: " <> show state.age) ]
         , HH.p_ [ HH.text ("Language preference: " <> printLanguage state.language) ]
         ]
+    handleMessage = case _ of
+      FC.Change state → H.put state
+      FC.Bubble void → absurd void
 
 --------------------------------------------------------------------------------
 
